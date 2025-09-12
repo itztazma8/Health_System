@@ -1,30 +1,86 @@
-.MODEL SMALL
+.MODEL SMALL    
+
+
+
+SKIP MACRO
+    MOV AH, 2
+    MOV DL, 10
+    INT 21H
+    MOV AH, 2
+    MOV DL, 13
+    INT 21H
+ENDM
  
 .STACK 100H
 
 .DATA
 
-; declare variables here
+MES DW "WELCOME TO YOUR WEEKLY FITNESS REPORT SYSTEM$"    
+WE DW "Weight: $"
+HE DW "Height: $"
+ST_W DW "Steps Walked: $"
+CAL DW "Daily Calorie Intake: $"
 
 .CODE
 MAIN PROC
 
-; initialize DS
-
 MOV AX,@DATA
-MOV DS,AX
- 
-; enter your code here
+MOV DS,AX    
 
+MOV CX, 45       
+l1:        
+MOV AH, 2
+MOV DL, "-"
+INT 21H
+LOOP l1 
+  
+SKIP 
+SKIP
+SKIP
 
+MOV AH, 9
+LEA DX, MES
+INT 21H 
 
+SKIP
+SKIP
+SKIP
 
- 
+MOV CX, 45       
+l2:        
+MOV AH, 2
+MOV DL, "-"
+INT 21H
+LOOP l2 
 
-;exit to DOS
+SKIP
+
+LEA DX, WE
+MOV AH, 9
+INT 21H
+
+SKIP
+
+LEA DX, HE
+MOV AH, 9
+INT 21H
+
+SKIP
+
+LEA DX, ST_W
+MOV AH, 9
+INT 21H
+
+SKIP
+
+LEA DX, CAL
+MOV AH, 9
+INT 21H 
+
+SKIP
                
 MOV AX,4C00H
 INT 21H
 
 MAIN ENDP
-    END MAIN
+END MAIN
