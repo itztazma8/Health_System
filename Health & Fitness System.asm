@@ -27,8 +27,11 @@ RE DW "-------------------$"
 RE1 DW " REPORT $"
 
 
-WEIGHT DW 7 DUP(0)
-HEIGHT DW 7 DUP(0)
+WEIGHT DW 7 DUP(0) 
+
+HEIGHT DB 1 DUP(0) 
+HEIGHT_1 DB 1 DUP(0) 
+
 STEP DW 7 DUP(0)
 CALORIE DW 7 DUP(0)
 
@@ -75,6 +78,7 @@ SKIP
 
 ;----------------------------------------------------------HEIGHT CALCULATION-----------------------------------------------------------------
 
+MOV SI, 0
 
 LEA DX, HE
 MOV AH, 9
@@ -83,14 +87,30 @@ INT 21H
 MOV AH, 1
 INT 21H
 
+SUB AL, '0'  
+
+MOV HEIGHT[SI], AL
+
 LEA DX, FT
 MOV AH, 9
 INT 21H
 
 MOV AH, 1
-INT 21H
+INT 21H 
+
+SUB AL, '0'
+
+MOV BL, 10
+MUL BL
+MOV BL, AL
+
 MOV AH, 1
 INT 21H
+
+SUB AL, '0'
+ADD BL, AL 
+
+MOV HEIGHT_1[SI], BL
 
 LEA DX, INCH
 MOV AH, 9
@@ -114,7 +134,9 @@ MOV CL, AL
 MOV CH, 0
 
 SKIP
-SKIP
+SKIP  
+
+MOV SI, 0
 
 MAINLOOP:
 
