@@ -1,7 +1,7 @@
 # Health Report System
 The whole system will give the user detailed information about their current state of health. The user must enter their weight, height, calorie intake, and distance covered. The whole system is made using EMU8086, which uses 8086 Assembly Language. The UI (User Interface) will ask the user for the number of entries. Then the following information will be taken.
 
-## UI
+# UI
 <img width="382" height="251" alt="Screenshot 2025-09-14 165324" src="https://github.com/user-attachments/assets/847e47fd-3b4a-4860-8076-5d09c422716a" />
 
 The weight range that can be input is from 10-999 kg.
