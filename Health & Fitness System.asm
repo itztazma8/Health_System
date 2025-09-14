@@ -19,8 +19,12 @@ MES DW "WELCOME TO YOUR WEEKLY FITNESS REPORT SYSTEM$"
 NO DW "How many entries you want to make? $"  
 WE DW "Weight: $"
 HE DW "Height: $"
-ST_W DW "Steps Walked: $"
-CAL DW "Daily Calorie Intake: $" 
+ST_W DW "Steps Walked: $"   
+DOT DW ".$"  
+MILES DW " miles$"
+CA DW " calories$"
+
+CAL DW "Calorie Intake: $" 
 FT DW " Feet $"
 INCH DW " Inch$"   
 RE DW "-------------------$"  
@@ -33,7 +37,9 @@ HEIGHT DB 1 DUP(0)
 HEIGHT_1 DB 1 DUP(0) 
 
 STEP DW 7 DUP(0)
-CALORIE DW 7 DUP(0)
+CALORIE DW 7 DUP(0)    
+
+WE_CALC DB 7 DUP(0)
 
 
 .CODE
@@ -76,7 +82,7 @@ SKIP
 
 
 
-;----------------------------------------------------------HEIGHT CALCULATION-----------------------------------------------------------------
+;------------------------------------------------------------HEIGHT SECTION--------------------------------------------------------------------
 
 MOV SI, 0
 
@@ -94,6 +100,8 @@ MOV HEIGHT[SI], AL
 LEA DX, FT
 MOV AH, 9
 INT 21H
+
+;---------------------------------------------------------HEIGHT CALCULATION-----------------------------------------------------------------
 
 MOV AH, 1
 INT 21H 
@@ -136,11 +144,11 @@ MOV CH, 0
 SKIP
 SKIP  
 
-MOV SI, 0
+MOV DI, 0
 
 MAINLOOP:
 
-;-------------------------------------------------------WEIGHT CALCULATION--------------------------------------------------------------------
+;-----------------------------------------------------------WEIGHT SECTION--------------------------------------------------------------------
  
  
 LEA DX, RE
@@ -162,6 +170,7 @@ LEA DX, WE
 MOV AH, 9
 INT 21H
 
+MOV SI, 0
 
 limit:
 MOV AH, 1
@@ -170,16 +179,87 @@ MOV AH, 0
 CMP AL, 13
 JE end
 
+SUB AL, '0'
+MOV WE_CALC[SI], AL
+INC SI
+
 JMP limit
 
-end: 
+end:  
 
+;----------------------------------------------------------WEIGHT CALCULATION----------------------------------------------------------------
+
+MOV SI, 2
+CMP WE_CALC[SI], 0
+JNE new_calc
+ 
+MOV SI, 0      
+MOV AL, WE_CALC[SI] 
+MOV AH, 0
+MOV BX, 10    
+MUL BX
+
+MOV BX, AX
+
+MOV SI, 1
+MOV AL, WE_CALC[SI]
+MOV AH, 0
+
+ADD BX, AX  
+
+JMP calc_end
+
+new_calc: 
+
+MOV SI, 0      
+MOV AL, WE_CALC[SI] 
+MOV AH, 0
+MOV BX, 100    
+MUL BX
+
+MOV BX, AX
+
+MOV SI, 1  
+MOV AL, WE_CALC[SI] 
+MOV AH, 0
+MOV DX, 10    
+MUL DX
+
+ADD BX, AX
+
+MOV SI, 2
+MOV AL, WE_CALC[SI]
+MOV AH, 0
+
+ADD BX, AX 
+
+calc_end:
+
+MOV AX, WEIGHT[DI]
+ 
 
 ;---------------------------------------------------------STEPS CALCULATION------------------------------------------------------------------
 
 SKIP
 SKIP
 LEA DX, ST_W
+MOV AH, 9
+INT 21H 
+
+MOV AH, 1
+INT 21H
+
+MOV AH, 1
+INT 21H
+
+LEA DX, DOT
+MOV AH, 9
+INT 21H
+
+MOV AH, 1
+INT 21H  
+
+LEA DX, MILES
 MOV AH, 9
 INT 21H
 
@@ -191,6 +271,22 @@ SKIP
 LEA DX, CAL
 MOV AH, 9
 INT 21H 
+
+MOV AH, 1
+INT 21H
+
+MOV AH, 1
+INT 21H
+
+MOV AH, 1
+INT 21H
+
+MOV AH, 1
+INT 21H
+
+LEA DX, CA
+MOV AH, 9
+INT 21H
 
 SKIP 
 SKIP
