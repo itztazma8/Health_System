@@ -34,7 +34,8 @@ RE1 DW " REPORT $"
 WEIGHT DW 7 DUP(0) 
 
 HEIGHT DB 1 DUP(0) 
-HEIGHT_1 DB 1 DUP(0) 
+HEIGHT_1 DB 1 DUP(0)   
+CONT DW 1 DUP(0)
 
 STEP DW 7 DUP(0)
 CALORIE DW 7 DUP(0)    
@@ -144,7 +145,9 @@ MOV CH, 0
 SKIP
 SKIP  
 
-MOV DI, 0
+MOV DI, 0  
+
+
 
 MAINLOOP:
 
@@ -235,7 +238,7 @@ ADD BX, AX
 
 calc_end:
 
-MOV AX, WEIGHT[DI]
+MOV WEIGHT[DI], BX
  
 
 ;---------------------------------------------------------STEPS CALCULATION------------------------------------------------------------------
@@ -247,17 +250,43 @@ MOV AH, 9
 INT 21H 
 
 MOV AH, 1
-INT 21H
+INT 21H  
+
+SUB AL, '0'
+MOV BL, 10
+MUL BL
+MOV BL, AL
+
 
 MOV AH, 1
-INT 21H
+INT 21H     
+SUB AL, '0'
+
+ADD BL, AL
+MOV BH, 0
+
+MOV AX, BX
+MOV BX, 2000
+MUL BX
+
+MOV BX, AX
+
 
 LEA DX, DOT
 MOV AH, 9
 INT 21H
 
 MOV AH, 1
-INT 21H  
+INT 21H 
+
+SUB AL, '0' 
+MOV AH, 0
+MOV DX, 200
+MUL DX
+
+ADD BX, AX
+
+MOV STEP[DI], BX
 
 LEA DX, MILES
 MOV AH, 9
@@ -272,24 +301,62 @@ LEA DX, CAL
 MOV AH, 9
 INT 21H 
 
-MOV AH, 1
-INT 21H
+
+
 
 MOV AH, 1
 INT 21H
 
-MOV AH, 1
-INT 21H
+SUB AL, '0'
+MOV BX, 1000
+MOV AH, 0
+MUL BX
+
+MOV SI, 0
+ADD CONT[SI], DX  
+ADD CONT[SI], AX
 
 MOV AH, 1
 INT 21H
+
+SUB AL, '0'  
+MOV BX, 100
+MOV AH, 0
+MUL BX
+
+
+ADD CONT[SI], AX
+
+MOV AH, 1
+INT 21H
+
+SUB AL, '0'   
+MOV AH, 0
+MOV BX, 10
+MUL BX
+
+ADD CONT[SI], AX
+
+MOV AH, 1
+INT 21H  
+
+SUB AL, '0'
+MOV AH, 0
+
+ADD CONT[SI], AX
+
+MOV BX, CONT[SI]
+MOV CALORIE[DI], BX
+
 
 LEA DX, CA
 MOV AH, 9
 INT 21H
 
 SKIP 
-SKIP
+SKIP   
+
+ADD DI, 2
 
 LOOP MAINLOOP
              
