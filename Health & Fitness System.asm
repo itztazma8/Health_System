@@ -18,7 +18,19 @@ ENDM
 ;---------------------------------------------------------------TEXT SETUP-------------------------------------------------------------------
 
 MES DW "WELCOME TO YOUR WEEKLY FITNESS REPORT SYSTEM$"
-MES1 DW "-------------THIS IS YOUR REPORT--------------$"  
+MES1 DW "-------------THIS IS YOUR REPORT--------------$" 
+MES2 DW "Calorie Intake Status: $" 
+MES3 DW "Calorie Surplus!$"
+MES4 DW "Calorie Deficit!$"  
+MES5 DW "Efficiency: $"
+MES6 DW " %$"      
+MES7 DW "BMI: $"   
+MES9 DW "BMI Category: $"  
+MES10 DW "Underweight!$"
+MES11 DW "Doing fine!$"
+MES12 DW "Overweight!$"
+
+
 NO DW "How many entries you want to make? $"  
 WE DW "Weight: $"  
 WE1 DW "Average Weight: $"
@@ -27,7 +39,8 @@ HE DW "Height: $"
 ST_W DW "Steps Walked: $"   
 DOT DW ".$"  
 MILES DW " miles$"
-CA DW " calories$"
+CA DW " calories$"  
+
 
 CAL DW "Calorie Intake: $" 
 FT DW " Feet $"
@@ -39,6 +52,7 @@ RE1 DW " REPORT $"
 
 WE_CALC DB 7 DUP(0)
 
+AVG DW 1 DUP(0)
 HEIGHT DB 1 DUP(0) 
 HEIGHT_1 DB 1 DUP(0)   
 CONT DW 1 DUP(0)
@@ -48,7 +62,8 @@ STEP DW 7 DUP(0)
 CALORIE DW 7 DUP(0)    
      
 
-BURN DW 7 DUP(0)
+BURN DW 7 DUP(0)   
+EFFICIENCY DW 7 DUP(0)
 
 
 .CODE
@@ -370,10 +385,12 @@ MOV AX, STEP[DI]
 MOV BX, 4
 MUL BX
 
-MOV BL, 100
-DIV BL
+MOV BX, 100
+DIV BX
 
 MOV BX, CALORIE[DI]
+
+ADD AX, 1600
 
 CMP BX, AX
 JG GREATER
@@ -387,9 +404,17 @@ MOV BURN[DI], 1
 JMP EEE
 
 LESS:
-MOV BURN[DI], 0
 
-EEE:
+MOV BURN[DI], 2
+
+EEE:   
+
+MOV DX, 100
+MUL DX
+
+DIV BX
+
+MOV EFFICIENCY[DI], AX
 
 ADD DI, 2
 
@@ -437,6 +462,7 @@ ADD DI, 2
 LOOP WE_LOOP
 BR1:  
 
+MOV SI, 0
 
   
 MOV BX, 0
@@ -444,6 +470,8 @@ MOV BL, DL
 DIV BL
 
 
+MOV AH, 0
+MOV AVG[SI], AX
 
 MOV AH, 0
 
@@ -481,6 +509,161 @@ DIV BL
 
 ADD AL, '0'
 
+
+MOV DL, AL
+MOV AH, 2
+INT 21H
+
+MOV AL, AH
+MOV AH, 0
+
+MOV BL, 10
+
+
+
+DIV BL
+
+MOV CL, AH
+
+
+ADD AL, '0'
+
+
+MOV DL, AL
+MOV AH, 2   
+INT 21H
+
+ADD CL, '0'
+MOV DL, CL
+MOV AH, 2
+INT 21H
+
+N3: 
+
+SKIP
+SKIP
+;---------------------------------------------------------CALORIE BURN-----------------------------------------------------------------------
+
+LEA DX, MES2
+MOV AH, 9 
+INT 21H
+
+
+MOV CX, 7
+
+MOV AX, 0
+MOV BX, 0 
+MOV SI, 0
+
+BU_LOOP:    
+MOV AX, BURN[SI]
+CMP AX, 0
+JE BU_END   
+
+CMP AX, 1
+JE GG    
+
+ADD BL, 1
+JMP JK
+
+GG:
+ADD BH, 1
+
+JK:
+ADD SI, 2
+
+LOOP BU_LOOP
+
+
+BU_END:
+
+CMP BH, BL
+JG SURREN
+
+LEA DX, MES4
+MOV AH, 9
+INT 21H  
+
+JMP JK1
+
+SURREN:
+LEA DX, MES3
+MOV AH, 9
+INT 21H
+
+JK1: 
+
+SKIP
+SKIP
+ 
+;------------------------------------------------------------------EFFICIENCY----------------------------------------------------------------
+
+LEA DX, MES5
+MOV AH, 9
+INT 21H
+
+
+MOV CX, 7
+MOV SI, 0
+MOV DX, 0
+MOV BX, 0
+
+EF_LOOP:
+MOV AX, EFFICIENCY[SI]  
+CMP AX, 0
+JE GO1
+
+ADD BX, AX 
+ADD DX, 1
+ADD SI, 2
+
+LOOP EF_LOOP
+
+GO1:      
+
+MOV AX, BX 
+MOV CX, DX
+MOV DX, 0
+
+DIV CX
+
+
+
+
+CMP AX, 100
+JL N11
+JMP N22
+
+;-------------------------------------------------------------TWO DIGIT AVG------------------------------------------------------------------
+
+N11:
+MOV BL, 10
+DIV BL
+
+MOV CL, AH
+ADD CL, '0'
+
+ADD AL, '0'
+
+MOV AH, 2   
+MOV DL, AL
+INT 21H
+
+MOV AH, 2
+MOV DL, CL
+INT 21H
+
+JMP N33
+
+;-----------------------------------------------------------THREE DIGIT AVG------------------------------------------------------------------
+
+N22:
+
+MOV BL, 100  
+DIV BL
+
+ADD AL, '0'
+
 MOV AH, 2
 MOV DL, AL
 INT 21H
@@ -507,13 +690,125 @@ MOV AH, 2
 MOV DL, CL
 INT 21H
 
+N33: 
+
+LEA DX, MES6
+MOV AH, 9
+INT 21H 
+
+
+SKIP
+SKIP  
+
+;-----------------------------------------------------------------HEIGHT---------------------------------------------------------------------
+MOV SI, 0
+
+MOV AL, HEIGHT[SI]
+MOV AH, 0
+MOV BX, 12
+MUL BX
+
+MOV BL, HEIGHT_1[SI]
+MOV BH, 0
+ADD AX, BX  
+MOV BX, 254
+MUL BX
+
+MOV BX, 1000
+DIV BX
+
+
+;---------------------------------------------------------------BMI SCORE--------------------------------------------------------------------
 
 
 
-N3:
+MOV BX, AX
+MUL BX
+
+MOV CX, AX
+
+LEA DX, MES7
+MOV AH, 9
+INT 21H    
+
+MOV AX, 0
+MOV DX, 0
+MOV BX, 0
+
+MOV SI, 0
+MOV AX, AVG[SI]
+MOV BX, 100
+MUL BX
+
+DIV CX 
+
+MOV DX, AX
+
+N111:
+MOV BL, 10
+DIV BL
+
+MOV CL, AH
+ADD CL, '0'
+
+ADD AL, '0'
+
+MOV AH, 2   
+MOV DL, AL
+INT 21H
+
+MOV AH, 2
+MOV DL, CL
+INT 21H
+
+
+
+;---------------------------------------------------------------CATEGORY OF WEIGHT-----------------------------------------------------------
+SKIP
+SKIP
+
+MOV CX, DX 
+
+LEA DX, MES9
+MOV AH, 9
+INT 21H
+
+CMP CX, 18
+JLE UNDER  
+
+CMP CX, 24
+JLE NORMAL  
+
+CMP CX, 24
+JG OVER
+
+
+
+UNDER:
+LEA DX, MES10
+MOV AH, 9
+INT 21H
+
+JMP BREXIT
+
+NORMAL:
+LEA DX, MES11
+MOV AH, 10
+INT 21H
+
+JMP BREXIT
+
+OVER:
+LEA DX, MES12
+MOV AH, 9
+INT 21H
+
+
+BREXIT:
              
 MOV AX,4C00H
-INT 21H
+INT 21H  
+
 
 MAIN ENDP
 END MAIN
