@@ -15,9 +15,14 @@ ENDM
 
 .DATA
 
-MES DW "WELCOME TO YOUR WEEKLY FITNESS REPORT SYSTEM$"  
+;---------------------------------------------------------------TEXT SETUP-------------------------------------------------------------------
+
+MES DW "WELCOME TO YOUR WEEKLY FITNESS REPORT SYSTEM$"
+MES1 DW "-------------THIS IS YOUR REPORT--------------$"  
 NO DW "How many entries you want to make? $"  
-WE DW "Weight: $"
+WE DW "Weight: $"  
+WE1 DW "Average Weight: $"
+
 HE DW "Height: $"
 ST_W DW "Steps Walked: $"   
 DOT DW ".$"  
@@ -30,17 +35,20 @@ INCH DW " Inch$"
 RE DW "-------------------$"  
 RE1 DW " REPORT $"
 
+;------------------------------------------------------------VARIABLE AND ARRAY SETUP--------------------------------------------------------
 
-WEIGHT DW 7 DUP(0) 
+WE_CALC DB 7 DUP(0)
 
 HEIGHT DB 1 DUP(0) 
 HEIGHT_1 DB 1 DUP(0)   
 CONT DW 1 DUP(0)
 
+WEIGHT DW 7 DUP(0) 
 STEP DW 7 DUP(0)
 CALORIE DW 7 DUP(0)    
+     
 
-WE_CALC DB 7 DUP(0)
+BURN DW 7 DUP(0)
 
 
 .CODE
@@ -356,9 +364,153 @@ INT 21H
 SKIP 
 SKIP   
 
+;----------------------------------------------------------------NET BURN CALC---------------------------------------------------------------
+
+MOV AX, STEP[DI]
+MOV BX, 4
+MUL BX
+
+MOV BL, 100
+DIV BL
+
+MOV BX, CALORIE[DI]
+
+CMP BX, AX
+JG GREATER
+
+CMP BX, AX
+JLE LESS
+
+GREATER:
+MOV BURN[DI], 1
+
+JMP EEE
+
+LESS:
+MOV BURN[DI], 0
+
+EEE:
+
 ADD DI, 2
 
-LOOP MAINLOOP
+LOOP MAINLOOP     
+
+
+;--------------------------------------------------------REPORT GENERATION-------------------------------------------------------------------
+
+  
+SKIP 
+SKIP
+SKIP
+
+MOV AH, 9
+LEA DX, MES1
+INT 21H 
+
+SKIP
+SKIP
+SKIP
+
+;------------------------------------------------------------AVERAGE WEIGHT CALCULATION------------------------------------------------------
+
+LEA DX, WE1
+MOV AH, 9
+INT 21H
+
+
+MOV CX, 7
+MOV DI, 0   
+
+MOV AX, 0
+MOV BX, 0 
+MOV DL, 0
+
+WE_LOOP:      
+MOV BX, WEIGHT[DI]
+CMP BX, 0
+JE BR1
+ADD AX, BX
+ADD DL, 1
+ADD DI, 2
+
+
+LOOP WE_LOOP
+BR1:  
+
+
+  
+MOV BX, 0
+MOV BL, DL
+DIV BL
+
+
+
+MOV AH, 0
+
+CMP AX, 100
+JL N1
+JMP N2
+
+;-------------------------------------------------------------TWO DIGIT AVG------------------------------------------------------------------
+
+N1:
+MOV BL, 10
+DIV BL
+
+MOV CL, AH
+ADD CL, '0'
+
+ADD AL, '0'
+
+MOV AH, 2   
+MOV DL, AL
+INT 21H
+
+MOV AH, 2
+MOV DL, CL
+INT 21H
+
+JMP N3
+
+;-----------------------------------------------------------THREE DIGIT AVG------------------------------------------------------------------
+
+N2:
+
+MOV BL, 100  
+DIV BL
+
+ADD AL, '0'
+
+MOV AH, 2
+MOV DL, AL
+INT 21H
+
+MOV AL, AH
+MOV AH, 0
+
+MOV BL, 10
+
+
+
+DIV BL
+
+MOV CL, AH
+ADD CL, '0'
+
+ADD AL, '0'
+
+MOV AH, 2   
+MOV DL, AL
+INT 21H
+
+MOV AH, 2
+MOV DL, CL
+INT 21H
+
+
+
+
+N3:
              
 MOV AX,4C00H
 INT 21H
