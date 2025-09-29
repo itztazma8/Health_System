@@ -27,7 +27,7 @@ The calorie intake status will track the ratio of calories burned with respect t
 This shows the actual ratio of calories burned and calories taken for those who are curious. 
 
 ## BMI
-In terms of BMI, first we consider the **BMI as 1600 calories**. The formula that has been used here is also less precise due to **Hardware Constraints**. The height is rounded down to two digits only. The weight is multiplied by 100 instead of 1000. So the formula is **[Weight X 100 // Height X Height]**.
+In terms of BMI, first we consider the **BMR as 1600 calories**. The formula that has been used here is also less precise due to **Hardware Constraints**. The height is rounded down to two digits only. The weight is multiplied by 100 instead of 1000. So the formula is **[Weight X 100 // Height X Height]**.
 
 ## BMI Category
 Based on the calculations done in the BMI section, the category is mentioned as to make sure the user understands his/her current state of physical health.
